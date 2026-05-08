@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-[#f8fafc] text-slate-900 font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  /* Smooth transitions globally */
+  input, select, textarea, button {
+    @apply transition-all duration-200;
+  }
+
+  /* Focus ring consistency */
+  input:focus, select:focus, textarea:focus {
+    @apply outline-none ring-2 ring-primary-500/20 border-primary-500;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 px-5 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-primary-500/20;
+  }
+
+  .status-badge {
+    @apply px-2.5 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider;
+  }
+
+  .status-available {
+    @apply bg-emerald-50 text-emerald-600 border border-emerald-100;
+  }
+
+  .status-rented {
+    @apply bg-amber-50 text-amber-600 border border-amber-100;
+  }
+
+  .status-service {
+    @apply bg-rose-50 text-rose-600 border border-rose-100;
+  }
+
+  /* Enterprise input - shared across components */
+  .enterprise-input {
+    @apply w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm font-medium outline-none 
+           focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all placeholder:text-slate-300;
+  }
+
+  /* Consistent card styling */
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-slate-100/80 hover:shadow-md transition-shadow;
+  }
+
+  /* Section label */
+  .section-label {
+    @apply text-[10px] font-semibold text-slate-400 uppercase tracking-widest;
+  }
+
+  /* Data label */
+  .data-label {
+    @apply text-[10px] font-medium text-slate-400 uppercase tracking-wider;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  @keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+  .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-slide-right { animation: slideRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-zoom-in { animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+}
