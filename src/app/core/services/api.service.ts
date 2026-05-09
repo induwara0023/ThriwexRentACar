@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'https://thriwexrentacarbackend.onrender.com/api'; // Laravel Backend
+  private baseUrl = 'http://localhost:8000/api'; // Laravel Backend (Local)
 
   constructor(private http: HttpClient) {}
 

@@ -313,7 +313,7 @@ export class CustomerHistoryComponent implements OnInit {
 
   getDocUrl(path: string): string {
     if (path.startsWith('http')) return path;
-    return `https://thriwexrentacarbackend.onrender.com/storage/${path}`;
+    return `http://localhost:8000/storage/${path}`;
   }
 
   downloadDoc(doc: any) {
