@@ -83,8 +83,15 @@ import { Router, RouterLink } from '@angular/router';
                 <tbody class="divide-y divide-slate-50">
                   <tr *ngFor="let booking of ongoingRentals" class="hover:bg-slate-50 transition-colors">
                     <td class="px-6 py-4">
-                      <p class="font-semibold text-slate-800 text-xs">{{ booking.vehicle?.plate_no }}</p>
-                      <p class="text-[10px] text-slate-400 font-medium uppercase">{{ booking.vehicle?.model }}</p>
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden flex-shrink-0">
+                          <img *ngIf="booking.vehicle?.image_url" [src]="booking.vehicle?.image_url" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                          <p class="font-semibold text-slate-800 text-xs">{{ booking.vehicle?.plate_no }}</p>
+                          <p class="text-[10px] text-slate-400 font-medium uppercase">{{ booking.vehicle?.model }}</p>
+                        </div>
+                      </div>
                     </td>
                     <td class="px-6 py-4">
                       <p class="font-semibold text-slate-700 text-xs">{{ booking.customer?.name }}</p>
@@ -213,13 +220,13 @@ export class DashboardComponent implements OnInit {
   stats = { total_fleet: 0, available_now: 0, ongoing_hires: 0 };
   ongoingRentals: Booking[] = [];
   serviceAlerts: Vehicle[] = [];
-  
+
   selectedBooking: Booking | null = null;
   returnKm: number = 0;
   submitting = false;
   quickNic = '';
 
-  constructor(private api: ApiService, private router: Router) {}
+  constructor(private api: ApiService, private router: Router) { }
 
   ngOnInit() { this.loadData(); }
 
@@ -251,7 +258,7 @@ export class DashboardComponent implements OnInit {
     const start = new Date(safePickupStr);
     const expectedEnd = new Date(safeReturnStr);
     const actualEnd = new Date();
-    
+
     // If returned early, charge for the agreed duration. If returned late, charge until now.
     const end = actualEnd > expectedEnd ? actualEnd : expectedEnd;
 
@@ -297,9 +304,25 @@ export class DashboardComponent implements OnInit {
       return_datetime: new Date().toISOString()
     };
 
+    // Store references for the receipt before we clear selectedBooking
+    const booking = this.selectedBooking;
+    const days = this.calculatedDays;
+    const traveled = this.calculatedTraveledKm;
+    const allowed = this.calculatedAllowedKm;
+    const excess = this.calculatedExcessKm;
+    const balance = this.calculatedBalance;
+    const vehicle = booking.vehicle;
+    const customer = booking.customer;
+    const dailyRate = Number(vehicle?.daily_rate) || 0;
+    const extraKmRate = Number(vehicle?.extra_km_rate) || 0;
+    const advance = Number(booking.advance_payment) || 0;
+    const totalAmount = (days * dailyRate) + (excess * extraKmRate);
+
     this.api.completeBooking(this.selectedBooking.id, payload).subscribe({
       next: (res: any) => {
-        alert(`Booking Finalized!\nBalance Collected: LKR ${this.calculatedBalance}`);
+        // Print Receipt
+        this.printReceipt(booking, days, traveled, allowed, excess, balance, vehicle, customer, dailyRate, extraKmRate, advance, totalAmount);
+
         this.selectedBooking = null;
         this.loadData();
         this.submitting = false;
@@ -309,6 +332,119 @@ export class DashboardComponent implements OnInit {
         this.submitting = false;
       }
     });
+  }
+
+  printReceipt(booking: any, days: number, traveled: number, allowed: number, excess: number, balance: number, vehicle: any, customer: any, dailyRate: number, extraKmRate: number, advance: number, totalAmount: number) {
+    const printWindow = document.createElement('iframe');
+    printWindow.style.position = 'absolute';
+    printWindow.style.top = '-1000px';
+    document.body.appendChild(printWindow);
+
+    const receiptHtml = `
+      <html>
+      <head>
+        <title>Receipt - ${booking.id}</title>
+        <style>
+          @page { margin: 0; size: 80mm auto; }
+          body { 
+            font-family: 'Courier New', Courier, monospace; 
+            width: 72mm; /* slightly less than 80mm for margins */
+            margin: 0 auto; 
+            padding: 5mm 4mm; 
+            color: #000; 
+            font-size: 12px;
+          }
+          .text-center { text-align: center; }
+          .text-right { text-align: right; }
+          .font-bold { font-weight: bold; }
+          .m-0 { margin: 0; }
+          .mt-1 { margin-top: 5px; }
+          .mb-1 { margin-bottom: 5px; }
+          .divider { border-top: 1px dashed #000; margin: 8px 0; }
+          table { width: 100%; border-collapse: collapse; }
+          td { padding: 2px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="text-center mb-1">
+          <h2 class="m-0" style="font-size: 18px;">NS RENT-A-CAR</h2>
+          <p class="m-0 mt-1">Industrial area, Ampara.</p>
+          <p class="m-0">Tel: +94 764452622</p>
+          <p class="m-0 mt-1 font-bold" style="font-size: 14px;">PAYMENT RECEIPT</p>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div>
+          <p class="m-0"><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+          <p class="m-0 mt-1"><strong>Invoice No:</strong> #INV-${booking.id}</p>
+          <p class="m-0 mt-1"><strong>Customer:</strong> ${customer?.name || 'N/A'}</p>
+          <p class="m-0 mt-1"><strong>Vehicle:</strong> ${vehicle?.plate_no} (${vehicle?.model})</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <table>
+          <tr>
+            <td>Duration (${days} Days)</td>
+            <td class="text-right">${(days * dailyRate).toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td>Traveled KM</td>
+            <td class="text-right">${traveled} / ${allowed}</td>
+          </tr>
+          <tr>
+            <td>Excess KM (${excess})</td>
+            <td class="text-right">${(excess * extraKmRate).toFixed(2)}</td>
+          </tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <table>
+          <tr>
+            <td><strong>Total Amount</strong></td>
+            <td class="text-right"><strong>${totalAmount.toFixed(2)}</strong></td>
+          </tr>
+          <tr>
+            <td>Advance Paid</td>
+            <td class="text-right">- ${advance.toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td><strong style="font-size: 14px;">Balance Paid</strong></td>
+            <td class="text-right"><strong style="font-size: 14px;">${balance.toFixed(2)}</strong></td>
+          </tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <div class="text-center mt-1">
+          <p class="m-0">Thank you for choosing NS RENT-A-CAR!</p>
+          <p class="m-0 mt-1">Drive Safely.</p>
+          <p class="m-0 mt-1" style="font-size: 10px;">Powered by Thriwex Software Solutions</p>
+          <p class="m-0 mt-1" style="font-size: 10px;">075 7060941</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const doc = printWindow.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write(receiptHtml);
+      doc.close();
+
+      // Wait for content to load before printing
+      setTimeout(() => {
+        printWindow.contentWindow?.focus();
+        printWindow.contentWindow?.print();
+
+        // Remove iframe after printing
+        setTimeout(() => {
+          document.body.removeChild(printWindow);
+        }, 1000);
+      }, 500);
+    }
   }
 
   goToHistory() {

@@ -7,13 +7,14 @@ import { BehaviorSubject, tap } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
+  // private apiUrl = 'https://api.nsrentacarmanager.online/api';
   private apiUrl = 'http://localhost:8000/api';
   private isAuthenticated = new BehaviorSubject<boolean>(this.hasToken());
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   private hasToken(): boolean {
-    return !!localStorage.getItem('token');
+    return !!sessionStorage.getItem('token');
   }
 
   getAuthStatus() {
@@ -28,8 +29,8 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
       tap(res => {
         if (res.token) {
-          localStorage.setItem('token', res.token);
-          localStorage.setItem('user', JSON.stringify(res.user));
+          sessionStorage.setItem('token', res.token);
+          sessionStorage.setItem('user', JSON.stringify(res.user));
           this.isAuthenticated.next(true);
         }
       })
@@ -38,7 +39,7 @@ export class AuthService {
 
   logout() {
     this.http.post(`${this.apiUrl}/logout`, {}, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
     }).subscribe({
       next: () => this.clearSession(),
       error: () => this.clearSession()
@@ -46,13 +47,13 @@ export class AuthService {
   }
 
   private clearSession() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     this.isAuthenticated.next(false);
     this.router.navigate(['/login']);
   }
 
   getToken() {
-    return localStorage.getItem('token');
+    return sessionStorage.getItem('token');
   }
 }

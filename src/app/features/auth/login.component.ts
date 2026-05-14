@@ -22,7 +22,7 @@ import { AuthService } from '../../core/services/auth.service';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>
-          <h1 class="text-3xl font-bold text-white tracking-tight">Thriwex<span class="text-primary-400">Rent</span></h1>
+          <h1 class="text-3xl font-bold text-white tracking-tight">NS<span class="text-primary-400">Rent A Car</span></h1>
           <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold mt-2">Enterprise System Access</p>
         </div>
 
@@ -64,7 +64,7 @@ export class LoginComponent implements OnInit {
   loading = false;
   errorMessage = '';
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router) { }
 
   ngOnInit() {
     if (this.auth.isLoggedIn()) {
@@ -75,7 +75,7 @@ export class LoginComponent implements OnInit {
   onSubmit() {
     this.loading = true;
     this.errorMessage = '';
-    
+
     this.auth.login({ email: this.email, password: this.password }).subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);

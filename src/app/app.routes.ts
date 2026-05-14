@@ -47,6 +47,26 @@ export const routes: Routes = [
     loadComponent: () => import('./features/customers/customer-history.component').then(m => m.CustomerHistoryComponent)
   },
   {
+    path: 'reports',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/reports/reports.component').then(m => m.ReportsComponent)
+  },
+  {
+    path: 'admins',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/admin-management/admin-management.component').then(m => m.AdminManagementComponent)
+  },
+  {
+    path: 'drivers',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/admin-management/driver-management.component').then(m => m.DriverManagementComponent)
+  },
+  {
+    path: 'hires',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/bookings/hire-booking.component').then(m => m.HireBookingComponent)
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'

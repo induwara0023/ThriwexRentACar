@@ -124,8 +124,9 @@ import { LucideAngularModule, Search, User, Phone, MapPin, FileText, Calendar, C
                       class="group hover:bg-slate-50/80 transition-colors cursor-pointer">
                       <td class="py-4">
                         <div class="flex items-center gap-3">
-                          <div class="w-8 h-8 bg-white border border-slate-100 rounded-lg flex items-center justify-center shadow-sm">
-                            <lucide-icon [img]="Car" class="w-4 h-4 text-primary-500"></lucide-icon>
+                          <div class="w-10 h-10 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
+                            <img *ngIf="booking.vehicle?.image_url" [src]="booking.vehicle?.image_url" class="w-full h-full object-cover">
+                            <lucide-icon *ngIf="!booking.vehicle?.image_url" [img]="Car" class="w-4 h-4 text-slate-300"></lucide-icon>
                           </div>
                           <div>
                             <p class="text-xs font-bold text-slate-800">{{ booking.vehicle?.model }}</p>
@@ -179,24 +180,28 @@ import { LucideAngularModule, Search, User, Phone, MapPin, FileText, Calendar, C
           <div class="p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 flex-grow">
             <!-- Header Info -->
             <div class="flex items-center gap-4">
-              <div class="w-12 h-12 bg-primary-50 rounded-xl flex items-center justify-center">
-                <lucide-icon [img]="Car" class="w-6 h-6 text-primary-500"></lucide-icon>
+              <div class="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm flex-shrink-0">
+                <img *ngIf="selectedBooking.vehicle?.image_url" [src]="selectedBooking.vehicle?.image_url" class="w-full h-full object-cover">
+                <lucide-icon *ngIf="!selectedBooking.vehicle?.image_url" [img]="Car" class="w-6 h-6 text-slate-300"></lucide-icon>
               </div>
               <div>
                 <h4 class="text-lg font-bold text-slate-900 leading-tight">{{ selectedBooking.vehicle?.model }}</h4>
-                <p class="text-xs text-slate-500">{{ selectedBooking.vehicle?.plate_no }} • {{ selectedBooking.vehicle?.transmission }}</p>
+                <p class="text-xs text-slate-500 font-medium">{{ selectedBooking.vehicle?.plate_no }} • {{ selectedBooking.vehicle?.transmission }}</p>
+                <div class="mt-1 flex items-center gap-2">
+                  <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 uppercase tracking-widest">{{ selectedBooking.status }}</span>
+                </div>
               </div>
             </div>
 
             <!-- Documents -->
             <section>
-              <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Evidence & Agreement</h5>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Evidence & Agreement ({{ selectedBooking.media?.length || 0 }} Items)</h5>
+              <div class="grid grid-cols-2 gap-3">
                 <div *ngFor="let doc of selectedBooking.media" class="group relative bg-slate-50 rounded-xl overflow-hidden border border-slate-100 hover:border-primary-500 transition-all">
                   <div class="aspect-video relative">
-                    <img [src]="getDocUrl(doc.file_path)" class="w-full h-full object-cover">
+                    <img [src]="doc.file_url" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <button (click)="openImage(getDocUrl(doc.file_path))" class="p-2 bg-white rounded-lg text-slate-900 hover:bg-primary-600 hover:text-white transition-all">
+                      <button (click)="openImage(doc.file_url)" class="p-2 bg-white rounded-lg text-slate-900 hover:bg-primary-600 hover:text-white transition-all">
                         <lucide-icon [img]="ImageIcon" class="w-4 h-4"></lucide-icon>
                       </button>
                       <button (click)="downloadDoc(doc)" class="p-2 bg-white rounded-lg text-slate-900 hover:bg-primary-600 hover:text-white transition-all">
@@ -275,8 +280,8 @@ export class CustomerHistoryComponent implements OnInit {
   error: string | null = null;
   selectedBooking: any = null;
 
-  constructor(private api: ApiService, private route: ActivatedRoute) {}
-  
+  constructor(private api: ApiService, private route: ActivatedRoute) { }
+
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params['nic']) {
@@ -288,7 +293,7 @@ export class CustomerHistoryComponent implements OnInit {
 
   search() {
     if (!this.searchNic) return;
-    
+
     this.loading = true;
     this.error = null;
     this.customer = null;
@@ -312,12 +317,14 @@ export class CustomerHistoryComponent implements OnInit {
   }
 
   getDocUrl(path: string): string {
+    if (!path) return '';
     if (path.startsWith('http')) return path;
-    return `http://localhost:8000/storage/${path}`;
+    return `http://localhost:8000/api/media/${path}`;
+    // return `https://api.nsrentacarmanager.online/api/media/${path}`;
   }
 
   downloadDoc(doc: any) {
-    const url = this.getDocUrl(doc.file_path);
+    const url = doc.file_url;
     const link = document.createElement('a');
     link.href = url;
     link.download = `${this.customer.name}_${doc.type}_${doc.id}.jpg`;

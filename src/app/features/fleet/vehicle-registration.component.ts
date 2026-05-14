@@ -41,6 +41,14 @@ import { Router, ActivatedRoute } from '@angular/router';
                 <option value="Car">Car</option>
                 <option value="Van">Van</option>
                 <option value="SUV">SUV</option>
+                <option value="Bike">Bike</option>
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Service Type</label>
+              <select formControlName="service_type" class="enterprise-input bg-white appearance-none border-primary-500">
+                <option value="rent">Rent (Self-Drive)</option>
+                <option value="hire">Hire (With Driver)</option>
               </select>
             </div>
           </div>
@@ -59,15 +67,15 @@ import { Router, ActivatedRoute } from '@angular/router';
                 </label>
               </div>
             </div>
-            <div class="space-y-2">
+            <div class="space-y-2" *ngIf="vehicleForm.get('service_type')?.value === 'rent'">
               <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Daily Rate (LKR)</label>
               <input type="number" formControlName="daily_rate" class="enterprise-input">
             </div>
           </div>
         </div>
 
-        <!-- Section 2: Pricing & KM Logic -->
-        <div class="glass-card p-6 rounded-2xl border-2 border-primary-100 bg-primary-50/10">
+        <!-- Section 2: Pricing & KM Logic (Only for Rent) -->
+        <div class="glass-card p-6 rounded-2xl border-2 border-primary-100 bg-primary-50/10" *ngIf="vehicleForm.get('service_type')?.value === 'rent'">
           <h2 class="text-[10px] font-black text-primary-600 uppercase tracking-[0.2em] mb-6">Mileage & Excess Charges</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="space-y-2">
@@ -118,17 +126,31 @@ import { Router, ActivatedRoute } from '@angular/router';
           </div>
         </div>
 
-        <!-- Section 4: Document Uploads -->
+        <!-- Section 4: Document Digitalization -->
         <div class="glass-card p-6 rounded-2xl">
-          <h2 class="text-[10px] font-black text-primary-500 uppercase tracking-[0.2em] mb-4">Document Digitalization</h2>
-          <div class="upload-zone" (click)="fileInput.click()">
-            <input type="file" (change)="onFileSelect($event, 'image')" class="hidden" #fileInput>
-            <div class="text-center">
-              <div class="w-8 h-8 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+          <h2 class="text-[10px] font-black text-primary-500 uppercase tracking-[0.2em] mb-4">Vehicle Visuals</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div class="upload-zone" (click)="fileInput.click()">
+              <input type="file" (change)="onFileSelect($event, 'image')" class="hidden" #fileInput>
+              <div class="text-center">
+                <div class="w-8 h-8 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </div>
+                <p class="text-[9px] font-black text-slate-800 uppercase tracking-widest">Update Photo</p>
+                <p class="text-[8px] text-slate-400 font-bold mt-1 max-w-[150px] truncate mx-auto">{{ files.image?.name || (isEdit ? 'Using current file' : 'Select asset photo') }}</p>
               </div>
-              <p class="text-[9px] font-black text-slate-800 uppercase tracking-widest">Vehicle Photo</p>
-              <p class="text-[8px] text-slate-400 font-bold mt-1">{{ files.image?.name || (isEdit ? 'Keep Existing' : 'Click to upload') }}</p>
+            </div>
+
+            <!-- Preview Area -->
+            <div *ngIf="imagePreview || existingImageUrl" class="h-32 rounded-xl overflow-hidden border-2 border-slate-100 bg-white relative group">
+               <img [src]="imagePreview || existingImageUrl" class="w-full h-full object-cover">
+               <div class="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                 <span class="text-[8px] font-bold text-white uppercase tracking-widest">Asset Preview</span>
+               </div>
+            </div>
+            <div *ngIf="!imagePreview && !existingImageUrl" class="h-32 rounded-xl border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-slate-300">
+               <svg class="w-6 h-6 mb-1 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+               <span class="text-[8px] font-bold uppercase tracking-widest opacity-40">No Preview Available</span>
             </div>
           </div>
         </div>
@@ -157,6 +179,8 @@ export class VehicleRegistrationComponent implements OnInit {
   isEdit = false;
   vehicleId: number | null = null;
   files: { image: File | null } = { image: null };
+  imagePreview: string | null = null;
+  existingImageUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder, 
@@ -167,6 +191,7 @@ export class VehicleRegistrationComponent implements OnInit {
     this.vehicleForm = this.fb.group({
       plate_no: ['', [Validators.required]],
       model: ['', Validators.required],
+      service_type: ['rent', Validators.required],
       type: ['Car', Validators.required],
       transmission: ['Auto', Validators.required],
       current_km: [0, Validators.required],
@@ -193,6 +218,7 @@ export class VehicleRegistrationComponent implements OnInit {
       const vehicles = res.data || res;
       const vehicle = vehicles.find((v: any) => v.id === this.vehicleId);
       if (vehicle) {
+        this.existingImageUrl = vehicle.image_url;
         this.vehicleForm.patchValue({
           ...vehicle,
           insurance_expiry: vehicle.insurance_expiry ? new Date(vehicle.insurance_expiry).toISOString().split('T')[0] : '',
@@ -206,7 +232,14 @@ export class VehicleRegistrationComponent implements OnInit {
 
   onFileSelect(event: any, type: 'image') {
     const file = event.target.files[0];
-    if (file) this.files[type] = file;
+    if (file) {
+      this.files[type] = file;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   onSubmit() {

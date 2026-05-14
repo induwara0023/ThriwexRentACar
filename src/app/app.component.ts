@@ -9,12 +9,12 @@ import { AuthService } from './core/services/auth.service';
   imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
   template: `
     <ng-container *ngIf="isLoggedIn">
-      <div class="flex h-screen bg-slate-50 overflow-hidden font-sans relative">
+      <div class="flex h-screen bg-slate-50 overflow-hidden font-sans relative print:h-auto print:overflow-visible print:bg-white">
         <!-- Mobile Sidebar Overlay -->
         <div *ngIf="isSidebarOpen" (click)="isSidebarOpen = false" class="lg:hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[55]"></div>
 
         <!-- Compact Sidebar -->
-        <aside [class]="'fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-[60] transition-transform duration-300 transform ' + (isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0')">
+        <aside [class]="'fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-[60] transition-transform duration-300 transform print:hidden ' + (isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0')">
           <div class="p-6 border-b border-slate-800/50">
             <div class="flex items-center gap-3">
               <div class="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center shadow-lg shadow-primary-500/20">
@@ -23,7 +23,7 @@ import { AuthService } from './core/services/auth.service';
                 </svg>
               </div>
               <div>
-                <h2 class="text-lg font-bold text-white tracking-tight leading-none">Thriwex<span class="text-primary-400">Rent</span></h2>
+                <h2 class="text-lg font-bold text-white tracking-tight leading-none">NS<span class="text-primary-400">Rent A Car</span></h2>
                 <p class="text-[8px] uppercase tracking-[0.2em] text-slate-500 font-bold mt-1">Enterprise System</p>
               </div>
             </div>
@@ -40,6 +40,10 @@ import { AuthService } from './core/services/auth.service';
             <a routerLink="/customers/history" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" (click)="isSidebarOpen = false" class="nav-item">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               <span>Customer History</span>
+            </a>
+            <a routerLink="/hires" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" (click)="isSidebarOpen = false" class="nav-item">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+              <span>Hire Bookings</span>
             </a>
             <a routerLink="/search" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" (click)="isSidebarOpen = false" class="nav-item">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
@@ -61,10 +65,22 @@ import { AuthService } from './core/services/auth.service';
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
               <span>Bookings</span>
             </a>
+            <a routerLink="/drivers" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" (click)="isSidebarOpen = false" class="nav-item">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+              <span>Drivers</span>
+            </a>
             
             <div class="px-3 mt-6 mb-2">
               <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">System</p>
             </div>
+            <a routerLink="/reports" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" (click)="isSidebarOpen = false" class="nav-item">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+              <span>Financial Reports</span>
+            </a>
+            <a routerLink="/admins" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" (click)="isSidebarOpen = false" class="nav-item">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              <span>Admin Management</span>
+            </a>
             <a (click)="logout()" class="nav-item cursor-pointer hover:!bg-rose-500/10 hover:!text-rose-400">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
               <span>Secure Logout</span>
@@ -86,16 +102,16 @@ import { AuthService } from './core/services/auth.service';
         </aside>
 
         <!-- Main Workspace -->
-        <main class="flex-1 overflow-y-auto relative bg-slate-50/50">
+        <main class="flex-1 overflow-y-auto relative bg-slate-50/50 print:bg-white print:overflow-visible print:h-auto">
           <!-- Floating Quick Action -->
-          <button routerLink="/bookings" class="fixed bottom-8 right-8 w-14 h-14 bg-slate-900 text-white rounded-xl shadow-2xl shadow-slate-900/20 flex items-center justify-center hover:bg-slate-800 hover:scale-105 transition-all z-50 active:scale-95 group">
+          <button routerLink="/bookings" class="fixed bottom-8 right-8 w-14 h-14 bg-slate-900 text-white rounded-xl shadow-2xl shadow-slate-900/20 flex items-center justify-center hover:bg-slate-800 hover:scale-105 transition-all z-50 active:scale-95 group print:hidden">
             <svg class="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </button>
 
           <!-- Top Bar -->
-          <header class="h-14 bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40 px-6 flex items-center justify-between">
+          <header class="h-14 bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40 px-6 flex items-center justify-between print:hidden">
             <div class="flex items-center gap-3">
               <button (click)="isSidebarOpen = !isSidebarOpen" class="lg:hidden p-2 text-slate-500 hover:bg-slate-50 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7" /></svg>

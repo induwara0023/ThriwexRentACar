@@ -2,7 +2,8 @@ export interface Vehicle {
   id: number;
   plate_no: string;
   model: string;
-  type: 'Car' | 'Van' | 'SUV';
+  service_type: 'rent' | 'hire';
+  type: 'Car' | 'Van' | 'SUV' | 'Bike';
   transmission: 'Auto' | 'Manual';
   current_km: number;
   next_service_km: number;
@@ -14,6 +15,32 @@ export interface Vehicle {
   extra_km_rate: number;
   image_path: string;
   image_url?: string;
+}
+
+export interface Driver {
+  id: number;
+  name: string;
+  license_no: string;
+  phone: string;
+  address: string;
+  status: 'available' | 'on_hire' | 'inactive';
+}
+
+export interface HireBooking {
+  id: number;
+  vehicle_id: number;
+  driver_id: number;
+  customer_id: number | null;
+  customer_name_manual: string;
+  distance_km: number;
+  rate_per_km: number;
+  total_price: number;
+  booking_date: string;
+  destination: string;
+  status: 'ongoing' | 'completed' | 'cancelled';
+  vehicle?: Vehicle;
+  driver?: Driver;
+  customer?: Customer;
 }
 
 export interface Customer {

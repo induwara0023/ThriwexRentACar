@@ -19,6 +19,12 @@ import { RouterLink } from '@angular/router';
 
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
           <div class="flex flex-wrap justify-center items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100 w-full sm:w-auto">
+            <button (click)="filterServiceType = 'all'" [class]="getServiceTypeFilterClass('all')">All Units</button>
+            <button (click)="filterServiceType = 'rent'" [class]="getServiceTypeFilterClass('rent')">Rentals</button>
+            <button (click)="filterServiceType = 'hire'" [class]="getServiceTypeFilterClass('hire')">Hires</button>
+          </div>
+          <div class="h-6 w-[1px] bg-slate-200 hidden md:block"></div>
+          <div class="flex flex-wrap justify-center items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100 w-full sm:w-auto">
             <button (click)="filterStatus = 'all'" [class]="getFilterClass('all')">All</button>
             <button (click)="filterStatus = 'available'" [class]="getFilterClass('available')">Ready</button>
             <button (click)="filterStatus = 'rented'" [class]="getFilterClass('rented')">On Hire</button>
@@ -50,6 +56,9 @@ import { RouterLink } from '@angular/router';
                  }">
                  {{ vehicle.status === 'available' ? 'Ready' : vehicle.status === 'rented' ? 'On Hire' : 'Service' }}
                </span>
+                <span class="ml-1 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-sm bg-white text-slate-900 border border-slate-200">
+                  {{ vehicle.service_type === 'hire' ? 'Hire' : 'Rent' }}
+                </span>
              </div>
           </div>
 
@@ -103,13 +112,27 @@ import { RouterLink } from '@angular/router';
 
           <div class="p-4 sm:p-6 space-y-6 md:space-y-8">
             <!-- Hero -->
-            <div class="space-y-2 text-center">
-              <h2 class="text-2xl font-bold text-slate-900 leading-tight">{{ selectedVehicle.model }}</h2>
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ selectedVehicle.plate_no }}</p>
-              <div class="pt-4 flex justify-center">
+            <div class="space-y-4 text-center">
+              <div *ngIf="selectedVehicle.image_url" class="w-full h-40 rounded-2xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50">
+                <img [src]="selectedVehicle.image_url" class="w-full h-full object-cover">
+              </div>
+              <div class="space-y-1">
+                <h2 class="text-2xl font-bold text-slate-900 leading-tight">{{ selectedVehicle.model }}</h2>
+                <div class="flex justify-center gap-2 mt-1">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ selectedVehicle.plate_no }}</p>
+                  <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase tracking-widest border border-slate-200">
+                    {{ selectedVehicle.service_type === 'hire' ? 'Hire Unit' : 'Rent Unit' }}
+                  </span>
+                </div>
+              </div>
+              <div class="pt-2 flex justify-center gap-2">
                  <button [routerLink]="['/fleet/edit', selectedVehicle.id]" class="inline-flex items-center gap-2 px-4 py-1.5 bg-slate-900 rounded-lg text-[9px] font-bold text-white uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">
                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                    Edit Asset
+                 </button>
+                 <button (click)="deleteVehicle(selectedVehicle.id)" class="inline-flex items-center gap-2 px-4 py-1.5 bg-rose-600 rounded-lg text-[9px] font-bold text-white uppercase tracking-widest hover:bg-rose-700 transition-all shadow-xl shadow-rose-600/20">
+                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                   Delete Asset
                  </button>
               </div>
             </div>
@@ -189,6 +212,7 @@ import { RouterLink } from '@angular/router';
 export class FleetComponent implements OnInit {
   vehicles: Vehicle[] = [];
   filterStatus: 'all' | 'available' | 'rented' | 'maintenance' = 'all';
+  filterServiceType: 'all' | 'rent' | 'hire' = 'all';
   selectedVehicle: Vehicle | null = null;
   rentalHistory: any[] = [];
   loadingHistory = false;
@@ -202,8 +226,11 @@ export class FleetComponent implements OnInit {
   }
 
   get filteredVehicles() {
-    if (this.filterStatus === 'all') return this.vehicles;
-    return this.vehicles.filter(v => v.status === this.filterStatus);
+    return this.vehicles.filter(v => {
+      const statusMatch = this.filterStatus === 'all' || v.status === this.filterStatus;
+      const serviceMatch = this.filterServiceType === 'all' || (v.service_type || 'rent') === this.filterServiceType;
+      return statusMatch && serviceMatch;
+    });
   }
 
   get totalRevenue() {
@@ -212,6 +239,10 @@ export class FleetComponent implements OnInit {
 
   getFilterClass(status: string) {
     return `nav-btn ${this.filterStatus === status ? 'btn-active' : 'hover:bg-slate-50'}`;
+  }
+
+  getServiceTypeFilterClass(type: string) {
+    return `nav-btn ${this.filterServiceType === type ? 'btn-active !bg-primary-600' : 'hover:bg-slate-50'}`;
   }
 
   getStatusClass(status: string) {
@@ -242,5 +273,24 @@ export class FleetComponent implements OnInit {
       },
       error: () => this.loadingHistory = false
     });
+  }
+
+  deleteVehicle(id: number) {
+    if (confirm('Are you sure you want to delete this vehicle?')) {
+      this.api.deleteVehicle(id).subscribe({
+        next: () => {
+          alert('Vehicle deleted successfully!');
+          this.selectedVehicle = null;
+          // Refresh list
+          this.api.getVehicles().subscribe((res: any) => {
+            this.vehicles = res.data || res;
+          });
+        },
+        error: (err) => {
+          console.error(err);
+          alert('Failed to delete vehicle.');
+        }
+      });
+    }
   }
 }

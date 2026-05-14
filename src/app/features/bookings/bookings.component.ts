@@ -243,7 +243,7 @@ export class BookingsComponent implements OnInit {
     { key: 'nic_front', label: 'NIC Front' },
     { key: 'nic_back', label: 'NIC Back' },
     { key: 'agreement', label: 'Agreement' },
-    { key: 'item', label: 'Security Item' }
+    { key: 'security_item', label: 'Security Item' }
   ] as const;
 
   files: { 
@@ -251,13 +251,13 @@ export class BookingsComponent implements OnInit {
     nic_front: File | null, 
     nic_back: File | null, 
     agreement: File | null, 
-    item: File | null 
+    security_item: File | null 
   } = {
     selfie: null,
     nic_front: null,
     nic_back: null,
     agreement: null,
-    item: null
+    security_item: null
   };
 
   constructor(private fb: FormBuilder, private api: ApiService, private router: Router) {
@@ -295,7 +295,7 @@ export class BookingsComponent implements OnInit {
       
       this.api.getAvailableVehicles(start, bufferedEnd).subscribe({
         next: (res: any) => {
-          this.availableVehicles = res.data || res;
+          this.availableVehicles = (res.data || res).filter((v: any) => (v.service_type || 'rent') === 'rent');
           this.loadingVehicles = false;
         },
         error: () => this.loadingVehicles = false
